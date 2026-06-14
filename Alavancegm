@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alavancagem Pro</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Alavancagem">
+    
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff;
+            --success-color: #2ea44f;
+            --danger-color: #da3633;
+            --border-color: #30363d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            padding-top: env(safe-area-inset-top, 20px);
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-top: 5px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #8b949e;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Estilização do Slider de Alavancagem */
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider-container input[type="range"] {
+            flex: 1;
+            padding: 0;
+        }
+
+        .leverage-value {
+            font-weight: bold;
+            color: var(--accent-color);
+            min-width: 45px;
+            text-align: right;
+            font-size: 1.1rem;
+        }
+
+        /* Grid de Resultados */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .result-item {
+            background-color: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result-item.full-width {
+            grid-column: span 2;
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .result-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .result-value.highlight {
+            color: var(--accent-color);
+        }
+
+        .result-value.danger {
+            color: var(--danger-color);
+        }
+
+        .result-value.success {
+            color: var(--success-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>Alavancagem Pro</h1>
+        <p>Calculadora de Risco & Margem em Tempo Real</p>
+    </header>
+
+    <div class="card">
+        <div class="form-group">
+            <label for="capital">Margem Disponível (Seu Capital Inicial - $)</label>
+            <input type="number" id="capital" value="100" step="any">
+        </div>
+
+        <div class="form-group">
+            <label for="leverage">Alavancagem</label>
+            <div class="slider-container">
+                <input type="range" id="leverage" min="1" max="125" value="10">
+                <span class="leverage-value" id="leverageTxt">10x</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="entryPrice">Preço de Entrada do Ativo ($)</label>
+            <input type="number" id="entryPrice" value="50000" step="any">
+        </div>
+
+        <div class="form-group">
+            <label for="direction">Direção da Operação</label>
+            <select id="direction">
+                <option value="LONG">LONG (Comprar / Alta)</option>
+                <option value="SHORT">SHORT (Vender / Baixa)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="stopLoss">Preço de Stop Loss ($ - Opcional)</label>
+            <input type="number" id="stopLoss" value="48500" step="any">
+        </div>
+    </div>
+
+    <div class="card">
+        <header style="margin-bottom: 15px; text-align: left;">
+            <h2 style="font-size: 1.1rem; color: #fff;">Métricas da Operação</h2>
+        </header>
+        
+        <div class="results-grid">
+            <div class="result-item">
+                <div class="result-label">Poder de Compra</div>
+                <div class="result-value highlight" id="resBuyingPower">$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Tamanho da Posição</div>
+                <div class="result-value" id="resPositionSize">0.0000</div>
+            </div>
+            <div class="result-item full-width">
+                <div class="result-label">Preço Estimado de Liquidação</div>
+                <div class="result-value danger" id="resLiquidation">$0.00</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Distância até Liquidação</div>
+                <div class="result-value danger" id="resLiqPercent">0.00%</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Risco do Stop Loss</div>
+                <div class="result-value" id="resStopRisk">$0.00</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Elementos da DOM
+    const inputCapital = document.getElementById('capital');
+    const inputLeverage = document.getElementById('leverage');
+    const leverageTxt = document.getElementById('leverageTxt');
+    const inputEntryPrice = document.getElementById('entryPrice');
+    const inputDirection = document.getElementById('direction');
+    const inputStopLoss = document.getElementById('stopLoss');
+
+    // Elementos de Saída
+    const resBuyingPower = document.getElementById('resBuyingPower');
+    const resPositionSize = document.getElementById('resPositionSize');
+    const resLiquidation = document.getElementById('resLiquidation');
+    const resLiqPercent = document.getElementById('resLiqPercent');
+    const resStopRisk = document.getElementById('resStopRisk');
+
+    function formatCurrency(value) {
+        return '$' + parseFloat(value).toFixed(2);
+    }
+
+    function calculate() {
+        // Obter valores numéricos
+        const capital = parseFloat(inputCapital.value) || 0;
+        const leverage = parseInt(inputLeverage.value) || 1;
+        const entryPrice = parseFloat(inputEntryPrice.value) || 0;
+        const direction = inputDirection.value;
+        const stopLoss = parseFloat(inputStopLoss.value) || 0;
+
+        // Atualiza o texto do slider
+        leverageTxt.innerText = leverage + 'x';
+
+        if (capital <= 0 || entryPrice <= 0) return;
+
+        // 1. Poder de Compra total (Capital x Alavancagem)
+        const buyingPower = capital * leverage;
+        resBuyingPower.innerText = formatCurrency(buyingPower);
+
+        // 2. Tamanho da Posição em unidades do ativo
+        const positionSize = buyingPower / entryPrice;
+        resPositionSize.innerText = positionSize.toFixed(4);
+
+        // 3. Preço de Liquidação Estimado (Fórmula simplificada de isolado - variação de 100%/alavancagem)
+        // Em uma corretora real existem taxas e a margem de manutenção, aqui calculamos a falência matemática (0 de margem)
+        const priceDropToLiq = entryPrice / leverage;
+        let liqPrice = 0;
+        
+        if (direction === 'LONG') {
+            liqPrice = entryPrice - priceDropToLiq;
+            if (liqPrice < 0) liqPrice = 0;
+        } else {
+            liqPrice = entryPrice + priceDropToLiq;
+        }
+        resLiquidation.innerText = formatCurrency(liqPrice);
+
+        // Variação percentual até a liquidação
+        const liqPercent = (1 / leverage) * 100;
+        resLiqPercent.innerText = liqPercent.toFixed(2) + '%';
+
+        // 4. Cálculo de risco se houver Stop Loss
+        if (stopLoss > 0) {
+            let priceDiff = 0;
+            if (direction === 'LONG') {
+                priceDiff = entryPrice - stopLoss;
+            } else {
+                priceDiff = stopLoss - entryPrice;
+            }
+            
+            const totalRisk = positionSize * priceDiff;
+            
+            if ((direction === 'LONG' && stopLoss >= entryPrice) || (direction === 'SHORT' && stopLoss <= entryPrice)) {
+                resStopRisk.innerText = "Stop inválido";
+                resStopRisk.className = "result-value danger";
+            } else {
+                resStopRisk.innerText = formatCurrency(totalRisk);
+                // Se o risco for maior que o capital inicial, fica vermelho
+                if (totalRisk > capital) {
+                    resStopRisk.className = "result-value danger";
+                } else {
+                    resStopRisk.className = "result-value success";
+                }
+            }
+        } else {
+            resStopRisk.innerText = "Não definido";
+            resStopRisk.className = "result-value";
+        }
+    }
+
+    // Eventos para recalcular automaticamente ao alterar qualquer campo
+    inputCapital.addEventListener('input', calculate);
+    inputLeverage.addEventListener('input', calculate);
+    inputEntryPrice.addEventListener('input', calculate);
+    inputDirection.addEventListener('change', calculate);
+    inputStopLoss.addEventListener('input', calculate);
+
+    // Executa o cálculo inicial
+    calculate();
+</script>
+
+</body>
+</html>
